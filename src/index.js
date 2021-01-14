@@ -1,17 +1,38 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
+import SeasonDisplay from "./SeasonDisplay";
+import LoadingSpinner from './LoadingSpinner';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const App = () => {
+  const [latitude, setLatitude] = useState(null);
+  const [errorMsg, setErrMsg] = useState("");
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+  useEffect(() => {
+    window.navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+        },
+        (error) => {
+          setErrMsg(error.message);
+        }
+      );
+  }, [])
+
+
+  return (
+      <div>
+         {
+           errorMsg && !latitude ? <div>Error: {errorMsg}</div> : ""
+         } 
+         {
+            !errorMsg && latitude ? <SeasonDisplay latitude={latitude} /> : ""
+         }
+         {
+             !errorMsg && !latitude ? <LoadingSpinner /> : ""
+         }
+      </div>
+  )
+         
+};
+
+ReactDOM.render(<App />, document.querySelector("#root"));
